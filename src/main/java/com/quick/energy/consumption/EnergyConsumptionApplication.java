@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ThirdApplication {
+public class EnergyConsumptionApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ThirdApplication.class, args);
+		SpringApplication.run(EnergyConsumptionApplication.class, args);
 	}
 
 }
