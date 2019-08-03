@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet author="efeariaroo (generated)" id="1542032902008-1">
+        <createTable tableName="villages">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="created_at" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="name" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(63)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone_number" type="VARCHAR(15)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="settlement_account" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="settlement_bank_code" type="VARCHAR(3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="settlement_account_bvn" type="VARCHAR(11)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="settlement_strategy" type="SMALLINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="settlement_batch_interval_hours" type="DOUBLE" />
+
+            <column name="name_enquiry_url" type="VARCHAR(2000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="transaction_callback_url" type="VARCHAR(2000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="settlement_callback_url" type="VARCHAR(2000)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="charge_type" type="SMALLINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="charge" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_charge_amount_minor" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="fee_inclusive_of_vat" type="SMALLINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="client_id" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="uuid" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="SMALLINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="approved_by" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="approved_at" type="datetime(6)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="retry_batch_size" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="efeariaroo (generated)" id="1552574569339">
+        <createTable tableName="village_power_consumption">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="created_at" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="uuid" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="name" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(63)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone_number" type="VARCHAR(15)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="settlement_account" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="settlement_bank_code" type="VARCHAR(3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="settlement_account_bvn" type="VARCHAR(11)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="settlement_strategy" type="SMALLINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="settlement_batch_interval_hours" type="DOUBLE" />
+
+            <column name="name_enquiry_url" type="VARCHAR(2000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="transaction_callback_url" type="VARCHAR(2000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="settlement_callback_url" type="VARCHAR(2000)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="charge_type" type="SMALLINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="charge" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_charge_amount_minor" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="fee_inclusive_of_vat" type="SMALLINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="SMALLINT">
+            </column>
+
+            <column name="approved_by" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="approved_at" type="datetime(6)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="retry_batch_size" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
