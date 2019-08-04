@@ -14,6 +14,12 @@ import org.springframework.context.annotation.Primary;
 public class DataSourceConfig {
     private static final Logger logger = LoggerFactory.getLogger(DataSourceConfig.class);
 
+    @Value("${datasource.dbname.villages}")
+    private String villagesDatabaseName;
+
+    @Value("${datasource.dbame.village.consumptions}")
+    private String villageConsumptionsDatabaseName;
+
     @Value("${datasource.url}")
     private String databaseURL;
 
@@ -23,6 +29,7 @@ public class DataSourceConfig {
     @Value("${datasource.password}")
     private String databasePassword;
 
+
     @Bean
     @Primary
     public InfluxDB dataSource() {
@@ -31,7 +38,19 @@ public class DataSourceConfig {
         Pong influxDbPingResponse = influxDB.ping();
         if (influxDbPingResponse.getVersion().equalsIgnoreCase("unknown")) {
             return null;
+        } else {
+            if(!influxDB.databaseExists(villagesDatabaseName)) {
+                influxDB.createDatabase(villagesDatabaseName);
+                // assumes default retention policy(RP) "autogen".
+                // The autogen RP has an infinite retention period
+            }
+            if(!influxDB.databaseExists(villageConsumptionsDatabaseName)) {
+                influxDB.createDatabase(villageConsumptionsDatabaseName);
+                influxDB.createRetentionPolicy("defaultPolicy", villageConsumptionsDatabaseName, "24h", 1, true);
+            }
         }
+        influxDB.setLogLevel(InfluxDB.LogLevel.BASIC);
+
         return influxDB;
     }
 }
