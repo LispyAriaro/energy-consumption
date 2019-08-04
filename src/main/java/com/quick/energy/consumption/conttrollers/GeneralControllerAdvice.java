@@ -32,6 +32,12 @@ public class GeneralControllerAdvice {
         return processServiceException(ex, null);
     }
 
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseDto handleSystemError(Exception ex) {
+        return new ResponseDto(ResponseDto.Status.error, "System error. Please contact the administrator.", warn(ex));
+    }
+
     private ResponseDto processServiceException(ServiceException ex, Serializable data) {
         return new ResponseDto(
                 ex.getErrorCode() == ErrorCode.SERVER_ERROR
