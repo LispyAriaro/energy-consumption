@@ -1,7 +1,7 @@
 package com.quick.energy.consumption.rest;
 
 import com.quick.energy.consumption.exceptions.ServiceException;
-import com.quick.energy.consumption.models.ResponseDto;
+import com.quick.energy.consumption.models.dto.ResponseDto;
 import com.quick.energy.consumption.models.pagination.PageOutputDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,6 +48,11 @@ public class RestUtil {
     private static ResponseEntity<ResponseDto> response(HttpStatus httpStatus, ResponseDto.Status status, String message, Object data, String code) {
         return ResponseEntity.status(httpStatus).body(new ResponseDto(status, message, (Serializable) data, code));
     }
+
+    public static ResponseEntity<Serializable> respondWithPlainPojo(HttpStatus httpStatus, ResponseDto.Status status, Object data) {
+        return ResponseEntity.status(httpStatus).body((Serializable) data);
+    }
+
 
     private static ResponseEntity<ResponseDto> response(HttpStatus httpStatus, ResponseDto.Status status, String message, Object data, String code, List<ResponseDto.ResponseError> errors) {
         return ResponseEntity.status(httpStatus).body(new ResponseDto(status, message, null, (Serializable) data, code, errors));

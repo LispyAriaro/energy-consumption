@@ -1,26 +1,25 @@
-package com.quick.energy.consumption.models;
+package com.quick.energy.consumption.models.dto;
+
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Positive;
-import java.math.BigDecimal;
 
 /**
  * @author efe ariaroo
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class CounterEnergyUsageDto {
+public class CounterCreateDto {
     private static final long serialVersionUID = 1L;
 
-    @NotBlank(message = "counter id is a required field")
+    @NotBlank(message = "Counter id is a required field")
     private String counterId;
 
-    @Positive(message = "Amount is a required field")
-    private BigDecimal amount;
+    @NotBlank(message = "Village name is a required field")
+    private String villageName;
 
     public String getCounterId() {
         return counterId;
@@ -30,11 +29,11 @@ public class CounterEnergyUsageDto {
         this.counterId = counterId;
     }
 
-    public BigDecimal getAmount() {
-        return amount;
+    public String getVillageName() {
+        return villageName;
     }
 
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
+    public void setVillageName(String villageName) {
+        this.villageName = villageName;
     }
 }

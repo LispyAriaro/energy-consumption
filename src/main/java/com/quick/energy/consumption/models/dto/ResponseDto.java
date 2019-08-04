@@ -1,4 +1,4 @@
-package com.quick.energy.consumption.models;
+package com.quick.energy.consumption.models.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

@@ -1,13 +1,14 @@
 package com.quick.energy.consumption.models;
 
+import com.quick.energy.consumption.Constants;
 import org.influxdb.annotation.Column;
 import org.influxdb.annotation.Measurement;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
-@Measurement(name = "energyconsumption")
-public class CounterEnergyUsage {
+@Measurement(name = Constants.ENERGY_CONSUMPTION_MEASUREMENT_NAME)
+public class CounterEnergyConsumption {
     @Column(name = "time")
     private Instant time;
 
