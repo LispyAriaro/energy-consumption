@@ -2,6 +2,7 @@ package com.quick.energy.consumption.rest;
 
 import com.quick.energy.consumption.exceptions.DuplicateEntryException;
 import com.quick.energy.consumption.models.Counter;
+import com.quick.energy.consumption.models.CounterEnergyConsumption;
 import com.quick.energy.consumption.models.dto.CounterCreateDto;
 import com.quick.energy.consumption.models.dto.CounterEnergyUsageDto;
 import com.quick.energy.consumption.models.dto.ResponseDto;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author efe ariaroo
@@ -60,7 +62,8 @@ public class CounterRestController {
 
     @GetMapping("/consumption_report")
     public ResponseEntity<ResponseDto> consumptionReport(@RequestParam("duration") String duration) {
+        List<CounterEnergyConsumption> reportData = counterService.getEnergyConsumptionReport();
 
-        return RestUtil.response(HttpStatus.OK, ResponseDto.Status.success, "Energy consumption report");
+        return RestUtil.response(HttpStatus.OK, ResponseDto.Status.success, "Energy consumption report", reportData);
     }
 }

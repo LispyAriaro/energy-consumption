@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -58,7 +60,7 @@ public class CounterServiceImpl implements CounterService {
     @Override
     public Counter getCounterDetails(String counterId) {
         // select query by tag in where clause must have the tag value single-quoted
-        String selectQuery = String.format("select * from %s where counterId='%s'",
+        String selectQuery = String.format("select * from %s where counterId = '%s'",
                 Constants.COUNTERS_MEASUREMENT_NAME, counterId);
         Query query = new Query(selectQuery, dbName);
 
@@ -91,5 +93,68 @@ public class CounterServiceImpl implements CounterService {
         batchPoints.point(point);
 
         influxDbConnection.write(batchPoints);
+    }
+
+    public List<CounterEnergyConsumption> getEnergyConsumptionReport() {
+        String selectQuery = String.format("select * from %s", Constants.COUNTERS_MEASUREMENT_NAME);
+        Query query = new Query(selectQuery, dbName);
+
+        QueryResult queryResult = influxDbConnection.query(query);
+
+        InfluxDBResultMapper resultMapper = new InfluxDBResultMapper();
+        List<Counter> counters = resultMapper.toPOJO(queryResult, Counter.class);
+        List<CounterEnergyConsumption> reportData = new ArrayList<>();
+
+        for(Counter counter : counters) {
+            CounterEnergyConsumption consumption = getVillageConsumption(counter);
+            reportData.add(consumption);
+        }
+
+        return reportData;
+    }
+
+    private CounterEnergyConsumption getVillageConsumption(Counter counter) {
+        String selectLastPointQuery = String.format("select * from %s where counterId = '%s' ORDER BY time DESC LIMIT 1",
+                Constants.ENERGY_CONSUMPTION_MEASUREMENT_NAME, counter.getCounterId());
+
+        String selectFirstPointQuery = String.format("select * from %s where counterId = '%s' ORDER BY time ASC LIMIT 1",
+                Constants.ENERGY_CONSUMPTION_MEASUREMENT_NAME, counter.getCounterId());
+
+        QueryResult lastPointQueryResult = influxDbConnection.query(new Query(selectLastPointQuery, dbName));
+
+        QueryResult firstPointQueryResult = influxDbConnection.query(new Query(selectFirstPointQuery, dbName));
+
+        InfluxDBResultMapper resultMapper = new InfluxDBResultMapper();
+        List<CounterEnergyConsumption> lastPoint = resultMapper.toPOJO(lastPointQueryResult,
+                CounterEnergyConsumption.class);
+        CounterEnergyConsumption lastEnergyConsumption = null;
+        if(lastPoint.size() > 0) {
+            lastEnergyConsumption = lastPoint.get(0);
+        }
+
+        List<CounterEnergyConsumption> firstPoint = resultMapper.toPOJO(firstPointQueryResult,
+                CounterEnergyConsumption.class);
+        CounterEnergyConsumption firstEnergyConsumption = null;
+        if(firstPoint.size() > 0) {
+            firstEnergyConsumption = firstPoint.get(0);
+        }
+
+        if(lastEnergyConsumption == null) {
+            CounterEnergyConsumption result = new CounterEnergyConsumption();
+            result.setAmount(BigDecimal.ZERO);
+            result.setCounterId(counter.getCounterId());
+            result.setVillageName(counter.getVillageName());
+            return result;
+        } else {
+            BigDecimal energyUsed = lastEnergyConsumption.getAmount().subtract(firstEnergyConsumption.getAmount());
+            if(energyUsed.compareTo(BigDecimal.ZERO) == 0) {
+                energyUsed = lastEnergyConsumption.getAmount();
+            }
+            CounterEnergyConsumption result = new CounterEnergyConsumption();
+            result.setAmount(energyUsed);
+            result.setCounterId(counter.getCounterId());
+            result.setVillageName(counter.getVillageName());
+            return result;
+        }
     }
 }
