@@ -3,6 +3,7 @@ package com.quick.energy.consumption.services.impl;
 import com.quick.energy.consumption.Constants;
 import com.quick.energy.consumption.exceptions.DuplicateEntryException;
 import com.quick.energy.consumption.models.Counter;
+import com.quick.energy.consumption.models.CounterEnergyConsumption;
 import com.quick.energy.consumption.models.dto.CounterCreateDto;
 import com.quick.energy.consumption.models.dto.CounterEnergyUsageDto;
 import com.quick.energy.consumption.services.CounterService;
@@ -56,7 +57,7 @@ public class CounterServiceImpl implements CounterService {
 
     @Override
     public Counter getCounterDetails(String counterId) {
-        // select query by tag should have the tag single-quoted
+        // select query by tag in where clause must have the tag value single-quoted
         String selectQuery = String.format("select * from %s where counterId='%s'",
                 Constants.COUNTERS_MEASUREMENT_NAME, counterId);
         Query query = new Query(selectQuery, dbName);
@@ -69,8 +70,6 @@ public class CounterServiceImpl implements CounterService {
         if(counters.size() > 0) {
             Counter counter = counters.get(0);
             return counter;
-        } else {
-
         }
 
         return null;
