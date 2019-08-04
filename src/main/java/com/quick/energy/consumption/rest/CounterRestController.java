@@ -32,12 +32,11 @@ public class CounterRestController {
     public ResponseEntity<ResponseDto> approveNewMerchant(@Valid @RequestBody CounterEnergyUsageDto counterEnergyUsageDto, BindingResult fields) {
         RestUtil.validate(fields);
 
-        return RestUtil.response(HttpStatus.OK, ResponseDto.Status.success, "Counter measurement accepted!");
+        return RestUtil.response(HttpStatus.CREATED, ResponseDto.Status.success, "Counter measurement accepted!");
     }
 
     @GetMapping("/consumption_report")
-    public ResponseEntity<ResponseDto> consumptionReport(@Valid @RequestParam("duration") String duration, BindingResult fields) {
-        RestUtil.validate(fields);
+    public ResponseEntity<ResponseDto> consumptionReport(@RequestParam("duration") String duration) {
 
         return RestUtil.response(HttpStatus.OK, ResponseDto.Status.success, "Energy consumption report");
     }
