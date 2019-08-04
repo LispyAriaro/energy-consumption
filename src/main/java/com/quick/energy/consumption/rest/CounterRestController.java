@@ -19,7 +19,6 @@ import javax.validation.Valid;
  */
 @RestController
 @RequestMapping(
-        value = "/",
         produces = MediaType.APPLICATION_JSON_VALUE
 )
 public class CounterRestController {
@@ -29,14 +28,14 @@ public class CounterRestController {
     private CounterService counterService;
 
 
-    @PostMapping("counter_callback")
+    @PostMapping("/counter_callback")
     public ResponseEntity<ResponseDto> approveNewMerchant(@Valid @RequestBody CounterEnergyUsageDto counterEnergyUsageDto, BindingResult fields) {
         RestUtil.validate(fields);
 
         return RestUtil.response(HttpStatus.OK, ResponseDto.Status.success, "Counter measurement accepted!");
     }
 
-    @GetMapping("consumption_report")
+    @GetMapping("/consumption_report")
     public ResponseEntity<ResponseDto> consumptionReport(@Valid @RequestParam("duration") String duration, BindingResult fields) {
         RestUtil.validate(fields);
 
