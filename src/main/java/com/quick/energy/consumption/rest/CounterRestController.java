@@ -32,6 +32,8 @@ public class CounterRestController {
     public ResponseEntity<ResponseDto> approveNewMerchant(@Valid @RequestBody CounterEnergyUsageDto counterEnergyUsageDto, BindingResult fields) {
         RestUtil.validate(fields);
 
+        counterService.saveCounterEnergyUsage(counterEnergyUsageDto);
+
         return RestUtil.response(HttpStatus.CREATED, ResponseDto.Status.success, "Counter measurement accepted!");
     }
 

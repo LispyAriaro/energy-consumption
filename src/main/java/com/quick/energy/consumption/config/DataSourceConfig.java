@@ -32,7 +32,7 @@ public class DataSourceConfig {
 
     @Bean
     @Primary
-    public InfluxDB dataSource() {
+    public InfluxDB influxDbConnection() {
         InfluxDB influxDB = InfluxDBFactory.connect(databaseURL, databaseUsername, databasePassword);
 
         Pong influxDbPingResponse = influxDB.ping();

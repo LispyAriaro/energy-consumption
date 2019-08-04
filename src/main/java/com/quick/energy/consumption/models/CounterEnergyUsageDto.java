@@ -3,8 +3,6 @@ package com.quick.energy.consumption.models;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
@@ -13,8 +11,6 @@ import java.math.BigDecimal;
 /**
  * @author efe ariaroo
  */
-@Data
-@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class CounterEnergyUsageDto {
@@ -25,4 +21,20 @@ public class CounterEnergyUsageDto {
 
     @Positive(message = "Amount is a required field")
     private BigDecimal amount;
+
+    public String getCounterId() {
+        return counterId;
+    }
+
+    public void setCounterId(String counterId) {
+        this.counterId = counterId;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
 }
