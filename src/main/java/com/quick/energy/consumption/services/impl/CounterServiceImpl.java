@@ -21,6 +21,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -109,6 +112,13 @@ public class CounterServiceImpl implements CounterService {
     public List<CounterEnergyConsumption> getEnergyConsumptionReport(String hourDurationQueryParam) throws InvalidDataFormatException {
         double hourDuration = getHourDurationParameterAsNumber(hourDurationQueryParam);
 
+        if(hourDuration > 24) {
+            throw new InvalidDataFormatException("Duration parameter cannot be greater than 24 hours");
+        }
+
+        long lowerTimeBoundInNanoseconds = (long) (System.currentTimeMillis() - (hourDuration * 60 * 60 * 1000)) * 1000000;
+
+
         String selectQuery = String.format("select * from %s", Constants.COUNTERS_MEASUREMENT_NAME);
         Query query = new Query(selectQuery, dbName);
 
@@ -119,7 +129,7 @@ public class CounterServiceImpl implements CounterService {
         List<CounterEnergyConsumption> reportData = new ArrayList<>();
 
         for(Counter counter : counters) {
-            CounterEnergyConsumption consumption = getVillageConsumption(counter);
+            CounterEnergyConsumption consumption = getVillageConsumption(counter, lowerTimeBoundInNanoseconds);
             reportData.add(consumption);
         }
 
@@ -149,14 +159,14 @@ public class CounterServiceImpl implements CounterService {
         }
     }
 
-    private CounterEnergyConsumption getVillageConsumption(Counter counter) {
+    private CounterEnergyConsumption getVillageConsumption(Counter counter, long lowerTimeBoundInNanoseconds) {
         String qualifedMeasurement = String.format("\"%s\".\"%s\".\"%s\"", dbName, twentyFourHourRetentionPolicyName,
                 Constants.ENERGY_CONSUMPTION_MEASUREMENT_NAME);
-        String selectLastPointQuery = String.format("select * from %s where counterId = '%s' ORDER BY time DESC LIMIT 1",
-                qualifedMeasurement, counter.getCounterId());
+        String selectLastPointQuery = String.format("select * from %s where counterId = '%s' AND time > %s ORDER BY time DESC LIMIT 1",
+                qualifedMeasurement, counter.getCounterId(), lowerTimeBoundInNanoseconds);
 
-        String selectFirstPointQuery = String.format("select * from %s where counterId = '%s' ORDER BY time ASC LIMIT 1",
-                qualifedMeasurement, counter.getCounterId());
+        String selectFirstPointQuery = String.format("select * from %s where counterId = '%s' AND time > %s ORDER BY time ASC LIMIT 1",
+                qualifedMeasurement, counter.getCounterId(), lowerTimeBoundInNanoseconds);
 
         QueryResult lastPointQueryResult = influxDbConnection.query(new Query(selectLastPointQuery, dbName));
 
