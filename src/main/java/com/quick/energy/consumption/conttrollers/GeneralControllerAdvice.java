@@ -2,6 +2,8 @@ package com.quick.energy.consumption.conttrollers;
 
 import com.quick.energy.consumption.error.ErrorCode;
 import com.quick.energy.consumption.exceptions.DuplicateEntryException;
+import com.quick.energy.consumption.exceptions.InvalidDataFormatException;
+import com.quick.energy.consumption.exceptions.NotFoundException;
 import com.quick.energy.consumption.exceptions.ServiceException;
 import com.quick.energy.consumption.models.dto.ResponseDto;
 import org.slf4j.Logger;
@@ -19,6 +21,18 @@ import java.util.Optional;
 @RestControllerAdvice
 public class GeneralControllerAdvice {
     private static final Logger logger = LoggerFactory.getLogger(GeneralControllerAdvice.class);
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseDto handleEntityNotException(NotFoundException ex) {
+        return new ResponseDto(ResponseDto.Status.fail, ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidDataFormatException.class)
+    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
+    public ResponseDto handleInvalidDataFormatException(InvalidDataFormatException ex) {
+        return new ResponseDto(ResponseDto.Status.fail, ex.getMessage());
+    }
 
     @ExceptionHandler(DuplicateEntryException.class)
     @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)

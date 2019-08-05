@@ -1,6 +1,8 @@
 package com.quick.energy.consumption.rest;
 
 import com.quick.energy.consumption.exceptions.DuplicateEntryException;
+import com.quick.energy.consumption.exceptions.InvalidDataFormatException;
+import com.quick.energy.consumption.exceptions.NotFoundException;
 import com.quick.energy.consumption.models.Counter;
 import com.quick.energy.consumption.models.CounterEnergyConsumption;
 import com.quick.energy.consumption.models.dto.CounterCreateDto;
@@ -44,7 +46,7 @@ public class CounterRestController {
     }
 
     @GetMapping("/counter")
-    public ResponseEntity<Serializable> counterDetails(@RequestParam("id") String counterId) {
+    public ResponseEntity<Serializable> counterDetails(@RequestParam("id") String counterId) throws NotFoundException {
 
         Counter counter = counterService.getCounterDetails(counterId);
 
@@ -61,8 +63,8 @@ public class CounterRestController {
     }
 
     @GetMapping("/consumption_report")
-    public ResponseEntity<ResponseDto> consumptionReport(@RequestParam("duration") String duration) {
-        List<CounterEnergyConsumption> reportData = counterService.getEnergyConsumptionReport();
+    public ResponseEntity<ResponseDto> consumptionReport(@RequestParam("duration") String duration) throws InvalidDataFormatException {
+        List<CounterEnergyConsumption> reportData = counterService.getEnergyConsumptionReport(duration);
 
         return RestUtil.response(HttpStatus.OK, ResponseDto.Status.success, "Energy consumption report", reportData);
     }
