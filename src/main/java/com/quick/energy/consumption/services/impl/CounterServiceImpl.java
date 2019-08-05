@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -60,7 +59,7 @@ public class CounterServiceImpl implements CounterService {
     @Override
     public Counter getCounterDetails(String counterId) {
         // select query by tag in where clause must have the tag value single-quoted
-        String selectQuery = String.format("select * from %s where counterId = '%s'",
+        String selectQuery = String.format("select * from %s where counterId = '%s' ORDER BY time DESC LIMIT 1",
                 Constants.COUNTERS_MEASUREMENT_NAME, counterId);
         Query query = new Query(selectQuery, dbName);
 
