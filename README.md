@@ -35,7 +35,7 @@ Javax validation is used to validate the POST body sent in the API requests.
 With more time, proper testing would have been done using an Influx Db cloud instance to
 perform integration through calling the services API endpoints.
 
-I used Jetty instead of Tomcat as the application server because Jetty is performs a little 
+I used Jetty instead of Tomcat as the application server because Jetty performs a little 
 better than Tomcat from performance benchmarks. 
 See here: https://www.baeldung.com/spring-boot-servlet-containers
 
