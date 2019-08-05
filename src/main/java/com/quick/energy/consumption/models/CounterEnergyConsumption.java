@@ -17,7 +17,7 @@ public class CounterEnergyConsumption {
 
     @Column(name = "amount")
     @JsonProperty("consumption")
-    private BigDecimal amount;
+    private double amount;
 
     @Column(name = "counterId")
     @JsonIgnore
@@ -34,11 +34,11 @@ public class CounterEnergyConsumption {
         this.time = time;
     }
 
-    public BigDecimal getAmount() {
+    public double getAmount() {
         return amount;
     }
 
-    public void setAmount(BigDecimal amount) {
+    public void setAmount(double amount) {
         this.amount = amount;
     }
 

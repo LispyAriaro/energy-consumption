@@ -114,11 +114,13 @@ public class CounterServiceImpl implements CounterService {
     }
 
     private CounterEnergyConsumption getVillageConsumption(Counter counter) {
+        String qualifedMeasurement = String.format("\"%s\".\"%s\".\"%s\"", dbName, twentyFourHourRetentionPolicyName,
+                Constants.ENERGY_CONSUMPTION_MEASUREMENT_NAME);
         String selectLastPointQuery = String.format("select * from %s where counterId = '%s' ORDER BY time DESC LIMIT 1",
-                Constants.ENERGY_CONSUMPTION_MEASUREMENT_NAME, counter.getCounterId());
+                qualifedMeasurement, counter.getCounterId());
 
         String selectFirstPointQuery = String.format("select * from %s where counterId = '%s' ORDER BY time ASC LIMIT 1",
-                Constants.ENERGY_CONSUMPTION_MEASUREMENT_NAME, counter.getCounterId());
+                qualifedMeasurement, counter.getCounterId());
 
         QueryResult lastPointQueryResult = influxDbConnection.query(new Query(selectLastPointQuery, dbName));
 
@@ -141,13 +143,13 @@ public class CounterServiceImpl implements CounterService {
 
         if(lastEnergyConsumption == null) {
             CounterEnergyConsumption result = new CounterEnergyConsumption();
-            result.setAmount(BigDecimal.ZERO);
+            result.setAmount(0);
             result.setCounterId(counter.getCounterId());
             result.setVillageName(counter.getVillageName());
             return result;
         } else {
-            BigDecimal energyUsed = lastEnergyConsumption.getAmount().subtract(firstEnergyConsumption.getAmount());
-            if(energyUsed.compareTo(BigDecimal.ZERO) == 0) {
+            double energyUsed = lastEnergyConsumption.getAmount() - firstEnergyConsumption.getAmount();
+            if(energyUsed == 0) {
                 energyUsed = lastEnergyConsumption.getAmount();
             }
             CounterEnergyConsumption result = new CounterEnergyConsumption();
