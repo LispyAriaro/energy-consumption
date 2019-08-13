@@ -1,4 +1,4 @@
-package com.quick.energy.consumption.models;
+package com.quick.energy.consumption.models.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -9,7 +9,7 @@ import org.influxdb.annotation.Measurement;
 import java.time.Instant;
 
 @Measurement(name = Constants.ENERGY_CONSUMPTION_MEASUREMENT_NAME)
-public class CounterEnergyConsumption {
+public class CounterEnergyReportDto {
     @Column(name = "time")
     @JsonIgnore
     private Instant time;
@@ -22,6 +22,7 @@ public class CounterEnergyConsumption {
     @JsonIgnore
     private String counterId;
 
+    @Column(name = "villageName")
     @JsonProperty("village_name")
     private String villageName;
 

@@ -5,8 +5,8 @@ import com.quick.energy.consumption.exceptions.DuplicateEntryException;
 import com.quick.energy.consumption.exceptions.InvalidDataFormatException;
 import com.quick.energy.consumption.exceptions.NotFoundException;
 import com.quick.energy.consumption.models.Counter;
-import com.quick.energy.consumption.models.CounterEnergyConsumption;
 import com.quick.energy.consumption.models.dto.CounterCreateDto;
+import com.quick.energy.consumption.models.dto.CounterEnergyReportDto;
 import com.quick.energy.consumption.models.dto.CounterEnergyUsageDto;
 import com.quick.energy.consumption.services.CounterService;
 import org.influxdb.InfluxDB;
@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -88,15 +87,19 @@ public class CounterServiceImpl implements CounterService {
     }
 
     @Override
-    public void saveCounterEnergyUsage(CounterEnergyUsageDto counterEnergyUsageDto) {
+    public void saveCounterEnergyUsage(CounterEnergyUsageDto counterEnergyUsageDto) throws NotFoundException {
         BatchPoints batchPoints = BatchPoints
                 .database(dbName)
                 .retentionPolicy(twentyFourHourRetentionPolicyName)
                 .build();
 
+        Counter counter = getCounterDetails(counterEnergyUsageDto.getCounterId());
+
+
         Point point = Point.measurement(Constants.ENERGY_CONSUMPTION_MEASUREMENT_NAME)
                 .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .addField("amount", counterEnergyUsageDto.getAmount())
+                .addField("villageName", counter.getVillageName())
                 .tag("counterId", counterEnergyUsageDto.getCounterId())
                 .build();
 
@@ -105,7 +108,7 @@ public class CounterServiceImpl implements CounterService {
         influxDbConnection.write(batchPoints);
     }
 
-    public List<CounterEnergyConsumption> getEnergyConsumptionReport(String hourDurationQueryParam) throws InvalidDataFormatException {
+    public List<CounterEnergyReportDto> getEnergyConsumptionReport(String hourDurationQueryParam) throws InvalidDataFormatException {
         double hourDuration = getHourDurationParameterAsNumber(hourDurationQueryParam);
 
         if(hourDuration > 24) {
@@ -114,20 +117,18 @@ public class CounterServiceImpl implements CounterService {
 
         long lowerTimeBoundInNanoseconds = (long) (System.currentTimeMillis() - (hourDuration * 60 * 60 * 1000)) * 1000000;
 
+        String qualifedMeasurement = String.format("\"%s\".\"%s\".\"%s\"", dbName, twentyFourHourRetentionPolicyName,
+                Constants.ENERGY_CONSUMPTION_MEASUREMENT_NAME);
 
-        String selectQuery = String.format("select * from %s", Constants.COUNTERS_MEASUREMENT_NAME);
+        String selectQuery = String.format("select last(villageName) AS villageName, last(amount) - first(amount) AS amount from %s where time > %s GROUP BY counterId ORDER BY time DESC",
+                qualifedMeasurement, lowerTimeBoundInNanoseconds);
+
         Query query = new Query(selectQuery, dbName);
 
         QueryResult queryResult = influxDbConnection.query(query);
 
         InfluxDBResultMapper resultMapper = new InfluxDBResultMapper();
-        List<Counter> counters = resultMapper.toPOJO(queryResult, Counter.class);
-        List<CounterEnergyConsumption> reportData = new ArrayList<>();
-
-        for(Counter counter : counters) {
-            CounterEnergyConsumption consumption = getVillageConsumption(counter, lowerTimeBoundInNanoseconds);
-            reportData.add(consumption);
-        }
+        List<CounterEnergyReportDto> reportData = resultMapper.toPOJO(queryResult, CounterEnergyReportDto.class);
 
         return reportData;
     }
@@ -137,12 +138,9 @@ public class CounterServiceImpl implements CounterService {
         Matcher matcher = pattern.matcher(hourDurationQueryParam);
 
         String hourDuration = null;
-        double hourDurationAsNumber = 0;
         while (matcher.find()) {
             hourDuration = matcher.group(1);
         }
-        log.info("hourDurationQueryParam: {}", hourDurationQueryParam);
-        log.info("hour duration: {}", hourDuration);
 
         if(hourDuration == null) {
             throw new InvalidDataFormatException("Duration parameter is not valid");
@@ -152,53 +150,6 @@ public class CounterServiceImpl implements CounterService {
             } catch(NumberFormatException ex) {
                 throw new InvalidDataFormatException("Duration parameter is not valid");
             }
-        }
-    }
-
-    private CounterEnergyConsumption getVillageConsumption(Counter counter, long lowerTimeBoundInNanoseconds) {
-        String qualifedMeasurement = String.format("\"%s\".\"%s\".\"%s\"", dbName, twentyFourHourRetentionPolicyName,
-                Constants.ENERGY_CONSUMPTION_MEASUREMENT_NAME);
-        String selectLastPointQuery = String.format("select * from %s where counterId = '%s' AND time > %s ORDER BY time DESC LIMIT 1",
-                qualifedMeasurement, counter.getCounterId(), lowerTimeBoundInNanoseconds);
-
-        String selectFirstPointQuery = String.format("select * from %s where counterId = '%s' AND time > %s ORDER BY time ASC LIMIT 1",
-                qualifedMeasurement, counter.getCounterId(), lowerTimeBoundInNanoseconds);
-
-        QueryResult lastPointQueryResult = influxDbConnection.query(new Query(selectLastPointQuery, dbName));
-
-        QueryResult firstPointQueryResult = influxDbConnection.query(new Query(selectFirstPointQuery, dbName));
-
-        InfluxDBResultMapper resultMapper = new InfluxDBResultMapper();
-        List<CounterEnergyConsumption> lastPoint = resultMapper.toPOJO(lastPointQueryResult,
-                CounterEnergyConsumption.class);
-        CounterEnergyConsumption lastEnergyConsumption = null;
-        if(lastPoint.size() > 0) {
-            lastEnergyConsumption = lastPoint.get(0);
-        }
-
-        List<CounterEnergyConsumption> firstPoint = resultMapper.toPOJO(firstPointQueryResult,
-                CounterEnergyConsumption.class);
-        CounterEnergyConsumption firstEnergyConsumption = null;
-        if(firstPoint.size() > 0) {
-            firstEnergyConsumption = firstPoint.get(0);
-        }
-
-        if(lastEnergyConsumption == null) {
-            CounterEnergyConsumption result = new CounterEnergyConsumption();
-            result.setAmount(0);
-            result.setCounterId(counter.getCounterId());
-            result.setVillageName(counter.getVillageName());
-            return result;
-        } else {
-            double energyUsed = lastEnergyConsumption.getAmount() - firstEnergyConsumption.getAmount();
-            if(energyUsed == 0) {
-                energyUsed = lastEnergyConsumption.getAmount();
-            }
-            CounterEnergyConsumption result = new CounterEnergyConsumption();
-            result.setAmount(energyUsed);
-            result.setCounterId(counter.getCounterId());
-            result.setVillageName(counter.getVillageName());
-            return result;
         }
     }
 }

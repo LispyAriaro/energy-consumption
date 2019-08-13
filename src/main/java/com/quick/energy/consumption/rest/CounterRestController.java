@@ -6,6 +6,7 @@ import com.quick.energy.consumption.exceptions.NotFoundException;
 import com.quick.energy.consumption.models.Counter;
 import com.quick.energy.consumption.models.CounterEnergyConsumption;
 import com.quick.energy.consumption.models.dto.CounterCreateDto;
+import com.quick.energy.consumption.models.dto.CounterEnergyReportDto;
 import com.quick.energy.consumption.models.dto.CounterEnergyUsageDto;
 import com.quick.energy.consumption.models.dto.ResponseDto;
 import com.quick.energy.consumption.services.CounterService;
@@ -54,7 +55,7 @@ public class CounterRestController {
     }
 
     @PostMapping("/counter_callback")
-    public ResponseEntity<ResponseDto> counterCallback(@Valid @RequestBody CounterEnergyUsageDto counterEnergyUsageDto, BindingResult fields) {
+    public ResponseEntity<ResponseDto> counterCallback(@Valid @RequestBody CounterEnergyUsageDto counterEnergyUsageDto, BindingResult fields) throws NotFoundException {
         RestUtil.validate(fields);
 
         counterService.saveCounterEnergyUsage(counterEnergyUsageDto);
@@ -64,7 +65,7 @@ public class CounterRestController {
 
     @GetMapping("/consumption_report")
     public ResponseEntity<ResponseDto> consumptionReport(@RequestParam("duration") String duration) throws InvalidDataFormatException {
-        List<CounterEnergyConsumption> reportData = counterService.getEnergyConsumptionReport(duration);
+        List<CounterEnergyReportDto> reportData = counterService.getEnergyConsumptionReport(duration);
 
         return RestUtil.response(HttpStatus.OK, ResponseDto.Status.success, "Energy consumption report", reportData);
     }
