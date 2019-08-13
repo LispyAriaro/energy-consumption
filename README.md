@@ -24,6 +24,8 @@ The counter is the entity that can send energy consumption data to this service.
 The data sent by the counter can only increase i.e every successive API call it makes
 will have an 'amount' value that is equal or higher than whatever was sent in the past.
 
+It is assumed that the counter calls the "/counter_callback" API once an hour.
+
 The energy consumption report for any one counter when required is the difference of
 the latest entry made by the counter and the first entry made by the counter within
 the time duration specified in the API request.
