@@ -140,6 +140,7 @@ public class CounterServiceImpl implements CounterService {
         String hourDuration = null;
         while (matcher.find()) {
             hourDuration = matcher.group(1);
+            break;
         }
 
         if(hourDuration == null) {
